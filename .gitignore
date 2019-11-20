@@ -17,3 +17,5 @@ tmp
 coverage
 # Ignore RubyMine files
 .idea
+.generators
+.rakeTasks

@@ -7,11 +7,17 @@ class Item
   # Fields
   field :title,        type: String
   field :description,  type: String
+  field :failed,       type: Boolean, default: false
   field :due_at,       type: DateTime
+  field :failed_at,    type: DateTime
+  field :last_sync_at, type: DateTime
   field :started_at,   type: DateTime
   field :completed_at, type: DateTime
 
-  enum :status, [:prepared, :started, :completed], default: :prepared
+  enum :status, %i[prepared started completed], default: :prepared
+
+  # scopes
+  scope :failed, -> { where(failed: true) }
 
   # Associations
   embeds_many :tags
