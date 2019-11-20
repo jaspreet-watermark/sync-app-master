@@ -19,9 +19,23 @@ class ItemSyncService
   def process
     begin
       item_params = Serializers::ItemEvent.call(item)
-      puts " ItemSyncService params = #{item_params}"
+      response = connection.post do |req|
+        req.url '/api/v1/items'
+        req.headers['Content-Type'] = 'application/json'
+        req.body = item_params
+      end
+      if response.status == 200
+        item.sync_success
+      else
+        item.sync_failed
+      end
     rescue => e
+      item.sync_failed
       raise ItemSyncServiceError, "Error while Sync in ItemSyncService!"
     end
+  end
+
+  def connection
+    Faraday.new(:url => 'http://localhost:4000')
   end
 end

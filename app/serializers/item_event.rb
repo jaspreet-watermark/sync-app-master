@@ -5,11 +5,12 @@ module Serializers
   class ItemEvent
       def call(item)
         {
-            id: item.id.to_s,
+            master_id: item.id.to_s,
             title: item.title,
             description: item.description,
-            status: item.status
-        }
+            status: item.status,
+            deleted_at: item.deleted_at
+        }.to_json
       end
 
       class << self

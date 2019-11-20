@@ -33,6 +33,7 @@ gem 'grape-swagger-rails'
 gem 'rack-cors'
 gem 'grape_logging'
 gem 'sidekiq', '4.2.7'
+gem 'faraday'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

@@ -28,6 +28,8 @@ class Item
 
   # callbacks
   after_save :process_status
+  after_save :trigger_sync
+  after_destroy :trigger_sync
 
   # class methods
   class << self
@@ -37,6 +39,15 @@ class Item
   end
 
   # instance methods
+  def sync_failed
+    set(failed_at: DateTime.now, failed: true)
+  end
+
+  def sync_success
+    set(failed: false, last_sync_at: DateTime.now)
+  end
+
+  private
   def process_status
     if _status_changed?
       case status.to_sym
@@ -48,12 +59,8 @@ class Item
     end
   end
 
-  def sync_failed
-    set(failed_at: DateTime.now, failed: true)
-  end
-
-  def sync_success
-    set(failed: false, last_sync_at: DateTime.now)
+  def trigger_sync
+    ItemSyncWorker.perform_async(id)
   end
 end
 

@@ -1,7 +1,7 @@
 # encoding: UTF-8
 # frozen_string_literal: true
 
-class FailedItem
+class FailedItemWorker
   include Sidekiq::Worker
   sidekiq_options queue: :daemons, retry: false
 
@@ -12,12 +12,12 @@ class FailedItem
     logger.info {"*** Worker::FailedItem INFO: Begin at #{current_time} : Found #{Item.failed.count} Failed Records ***"}
     success = 0
     failed = 0
-    Item.failed.each do |item|
+    Item.unscoped.failed.each do |item|
       begin
         # call the Item Sync Service to sync the data
         ItemSyncService.new(item).process
         success += 1
-      rescue ItemSyncServiceError => e
+      rescue Exception => e
         failed += 1
         logger.error {"Worker::FailedItem ERROR: #{e.message}"}
       end
@@ -25,7 +25,7 @@ class FailedItem
     logger.info {"*** Total Success Synced Records: #{success} ***"}
     logger.info {"*** Total Failed Synced Records: #{failed} ***"}
     logger.info {"*** Worker::FailedItem INFO: End at #{current_time} ***"}
-    FailedItem.perform_in(10.seconds)
+    FailedItemWorker.perform_in(5.seconds)
   end
 
   private
