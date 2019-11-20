@@ -18,7 +18,8 @@ class ItemSyncService
   # In case of any error, it will raise ItemSyncServiceError
   def process
     begin
-    #   TODO:: Code to Sync Item
+      item_params = Serializers::ItemEvent.call(item)
+      puts " ItemSyncService params = #{item_params}"
     rescue => e
       raise ItemSyncServiceError, "Error while Sync in ItemSyncService!"
     end

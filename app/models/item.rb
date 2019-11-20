@@ -47,5 +47,13 @@ class Item
       end
     end
   end
+
+  def sync_failed
+    set(failed_at: DateTime.now, failed: true)
+  end
+
+  def sync_success
+    set(failed: false, last_sync_at: DateTime.now)
+  end
 end
 

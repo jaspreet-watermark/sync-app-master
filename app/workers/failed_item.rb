@@ -2,9 +2,10 @@
 # frozen_string_literal: true
 
 class FailedItem
-  include Sidekiq::Worker, queue: :daemons, retry: false
+  include Sidekiq::Worker
+  sidekiq_options queue: :daemons, retry: false
 
-  # this worker will run every 5 seconds
+  # this worker will run every 10 seconds
   # It will traverse all failed sync records
   # and call the ItemSyncService with the item object
   def perform
@@ -12,25 +13,22 @@ class FailedItem
     success = 0
     failed = 0
     Item.failed.each do |item|
-        begin
-          # call the Item Sync Service to sync the data
-          ItemSyncService.new(item).process
-          success += 1
-        rescue ItemSyncServiceError => e
-          failed += 1
-          logger.error {"Worker::FailedItem ERROR: #{e.message}"}
-        end
+      begin
+        # call the Item Sync Service to sync the data
+        ItemSyncService.new(item).process
+        success += 1
+      rescue ItemSyncServiceError => e
+        failed += 1
+        logger.error {"Worker::FailedItem ERROR: #{e.message}"}
+      end
     end
     logger.info {"*** Total Success Synced Records: #{success} ***"}
     logger.info {"*** Total Failed Synced Records: #{failed} ***"}
     logger.info {"*** Worker::FailedItem INFO: End at #{current_time} ***"}
+    FailedItem.perform_in(10.seconds)
   end
 
   private
-  def logger
-    @logger ||= Rails.logger
-  end
-
   def current_time
     Time.current.strftime("%B %d, %Y %I:%M %p")
   end
