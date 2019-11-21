@@ -34,6 +34,7 @@ gem 'rack-cors'
 gem 'grape_logging'
 gem 'sidekiq', '4.2.7'
 gem 'faraday'
+gem 'faker'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console
@@ -53,7 +54,6 @@ end
 group :test do
   gem 'factory_bot_rails'
   gem 'database_cleaner'
-  gem 'faker'
   gem 'simplecov'
 end
 
