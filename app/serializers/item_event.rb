@@ -10,7 +10,7 @@ module Serializers
             description: item.description,
             status: item.status,
             deleted_at: item.deleted_at
-        }.to_json
+        }
       end
 
       class << self
