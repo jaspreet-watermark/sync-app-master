@@ -7,11 +7,17 @@ class Item
   # Fields
   field :title,        type: String
   field :description,  type: String
+  field :failed,       type: Boolean, default: false
   field :due_at,       type: DateTime
+  field :failed_at,    type: DateTime
+  field :last_sync_at, type: DateTime
   field :started_at,   type: DateTime
   field :completed_at, type: DateTime
 
-  enum :status, [:prepared, :started, :completed], default: :prepared
+  enum :status, %i[prepared started completed], default: :prepared
+
+  # scopes
+  scope :failed, -> { where(failed: true) }
 
   # Associations
   embeds_many :tags
@@ -22,6 +28,8 @@ class Item
 
   # callbacks
   after_save :process_status
+  after_save :trigger_sync
+  after_destroy :trigger_sync
 
   # class methods
   class << self
@@ -31,6 +39,15 @@ class Item
   end
 
   # instance methods
+  def sync_failed
+    set(failed_at: DateTime.now, failed: true)
+  end
+
+  def sync_success
+    set(failed: false, last_sync_at: DateTime.now)
+  end
+
+  private
   def process_status
     if _status_changed?
       case status.to_sym
@@ -40,6 +57,10 @@ class Item
         set(completed_at: DateTime.now) unless completed_at_changed?
       end
     end
+  end
+
+  def trigger_sync
+    ItemSyncWorker.perform_async(id)
   end
 end
 
