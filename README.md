@@ -1,8 +1,8 @@
 # Todo APP
 
 # Overview
- Todo is a simple API for CRUD operations
- 
+This is master Application which automatically Sync data to slave Application https://github.com/jaspreet-watermark/sync-app-slave 
+
 # Installation
 ````
 git clone https://github.com/jaspreet-watermark/todo.git
@@ -11,6 +11,14 @@ bundle install
 rake db:create
 rails s
 ````
+
+### Run Background Workers
+In new terminal
+
+````
+bundle exec sidekiq -q daemons -q default
+````
+
 ## Run Specs
 ````
 rspec
